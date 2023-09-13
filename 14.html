@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+</body>
+<script>
+    function loadImg(url) {
+        return new Promise(function (resolve, reject) {
+            // создание нового дом элемента
+            let img = document.createElement('img')
+            // Стили для элемента
+            img.className = 'promised-img'
+            img.style.width = `500px`
+            img.style.height = `500px`
+            img.style.margin = `50px 0 0 500px`
+
+            //В случае успешной загрузки возвращает колбэк функцию resolve, которая возвращает элемент
+            img.onload = () => resolve(img)
+            // В случае ошибки возвращаетс колбэк функцию reject, которая возвращает сообщение переданное в error
+            img.onerror = () => reject(new Error(`Ошибка загрузки изображения`))
+
+            //Присваимет элементу переданный url
+            img.src = url
+
+
+            document.body.prepend(img)
+        })
+    }
+
+    loadImg('https://amiel.club/uploads/posts/2022-03/thumbs/1647550274_1-amiel-club-p-kartinki-dlya-fona-priroda-1.jpg')
+</script>
+
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .point-input {
+            border: none;
+            height: 30px;
+            font-size: 21px;
+            background: whitesmoke;
+            border-radius: 8px;
+        }
+
+        .container {
+            width: 1000px;
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+            margin-top: 150px;
+            gap: 5px;
+        }
+
+        .search-results {
+            cursor: pointer;
+            background: whitesmoke;
+            border-radius: 8px;
+            border: none;
+            min-height: 30px;
+            font-size: 21px;
+        }
+
+        .option {
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <input name=query class='point-input' type="text" placeholder="Поиск мест">
+        <select class="search-results">
+            <option class="option" value=""></option>
+        </select>
+    </div>
+</body>
+<script type="module">
+    const API_KEY = `6266da6a-7b21-4393-a08b-f16963c8e129`
+    const url = `https://geocode-maps.yandex.ru/1.x/?apikey=${API_KEY}&geocode=`
+
+    const test = `https://geocode-maps.yandex.ru/1.x/?apikey=${API_KEY}&geocode=Москва,+Тверская+улица,+дом+7&format=json`
+    const input = document.querySelector('.point-input');
+    const searchResults = document.querySelector('.search-results')
+
+    //Формат запроса
+    function formURL(request) {
+        return url + request + `&format=json`
+    }
+
+    // Слушатель на инпуте, который при изменении запускает функцию с дебаунсом
+    input.addEventListener('input', (e) => {
+        const value = e.target.value
+
+        debouncedFetch(value)
+            .then(updateList) // После получения данных от сервера вызывается функция updateList
+    })
+    // Слушатель на селект, котрый меняет значение инпута
+    searchResults.addEventListener('change', (e) => {
+        input.value = e.target.value
+    })
+
+    // Обертка в дебаунс
+    const debouncedFetch = asyncDebounce(fetchUrl, 300)
+
+    // Функция получения данных от сервера
+    async function fetchUrl(value) {
+
+        try {
+            const response = await fetch(formURL(value))
+
+            if (!value) {
+                console.log('В инпуте пусто')
+            }
+            else {
+                const data = await response.json()
+                return data.response.GeoObjectCollection.featureMember
+            }
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    // Функция реализующая асинхронный дебанус
+    function asyncDebounce(func, delay) {
+        let timeout
+        return async function (...value) { //Передает в функцию данные из инпута
+            clearTimeout(timeout)
+
+
+            return new Promise(resolve => {
+                timeout = setTimeout(async () => {
+                    const results = await func(...value)
+                    console.log('123')
+                    resolve(results)
+                }, delay)
+            })
+        }
+    }
+
+
+    // Добавление адрессов в список
+    function updateList(response) {
+        clearList() // После обнволенния данных сервера адреса в списке удаляются
+
+        // Если с сервера вернется undefined функция не будет отрабатывать
+        if (response) {
+            // Создание нового элемента в списке
+            response.forEach(item => {
+                const option = document.createElement('option')
+                option.classList.add('option')
+                option.innerText = `${item.GeoObject.name} ${item.GeoObject.description}`
+                searchResults.append(option)
+            })
+        }
+    }
+    // Удаление элементов из списка
+    function clearList() {
+        const deleteOptions = searchResults.querySelectorAll('option')
+        deleteOptions.forEach(item => item.remove())
+    }
+
+
+
+
+
+</script>
+
+</html>

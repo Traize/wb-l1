@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .container {
+            margin: 0 auto;
+            display: flex;
+            width: 1000px;
+            flex-direction: column;
+            background: whitesmoke;
+            padding: 10px;
+        }
+
+        .table {
+            width: 100%;
+            margin: 50px auto;
+            font-size: 18px;
+        }
+
+        .pagination-block {
+            display: flex;
+            font-size: 18px;
+            gap: 5px;
+            background-color: whitesmoke;
+            justify-content: space-between;
+        }
+
+        .page-btn {
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .page__btn--active {
+
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .sorting-buttons {
+            gap: 3px;
+            display: flex;
+        }
+
+        .sort-btn {
+            padding: 10px;
+        }
+
+        thead {
+            background-color: grey;
+        }
+
+        tr,
+        td {
+            height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <table class="table">
+        </table>
+    </div>
+</body>
+<script>
+    const url = `http://www.filltext.com/?rows=1000&fname=%7BfirstName%7D&lname=%7BlastName%7D&tel=%7Bphone%7Cformat%7D&address=%7BstreetAddress%7D&city=%7Bcity%7D&state=%7BusState%7Cabbr%7D&zip=%7Bzip%7D&pretty=true`
+
+
+    const container = document.querySelector('.container')
+    const table = document.querySelector('.table')
+
+    // получения данных со страницы
+    async function getData() {
+        try {
+            const res = await fetch(url)
+            const data = res.json()
+            return data
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    // функция срабатывающая при загрузке страницы
+    async function main() {
+        // получение данных со страницы
+        const res = await getData();
+        // текущая страница
+        let currentPage = 1;
+        // максимально кол-во элементов на странице
+        let limit = 50;
+
+
+        //  создание заголовков
+        function createHeader(res) {
+            const tableHead = document.createElement('thead')
+            const theadRow = document.createElement('tr')
+
+            tableHead.append(theadRow)
+
+            // перебирает ключи у первого элемента в массиве 
+            for (let key in res[0]) {
+                const keyTitle = document.createElement('th')
+                keyTitle.classList.add('title-th')
+                // Блок с кнопками сортировки
+                const sortBtns = document.createElement('div')
+                sortBtns.classList.add('sorting-buttons')
+
+                // создание кнопки отвечающая за соритровку по возрастанию
+                const incSort = document.createElement('button')
+                incSort.classList.add('sort-btn', 'up')
+                incSort.textContent = '+'
+                // слушатель клика
+                incSort.addEventListener('click', (e) => {
+
+                    let th = e.target.closest('TH')
+                    // вызывает функцую сортировки по колонке где находится кнопка
+                    console.log()
+                    return sortUp(th.cellIndex, (th.childNodes[0].textContent))
+
+                })
+
+                // создание кнопки отвечающая за соритровку по убыванию
+                const decSort = document.createElement('button')
+                decSort.classList.add('sort-btn', 'down')
+                decSort.textContent = '-'
+                decSort.addEventListener('click', (e) => {
+
+                    let th = e.target.closest('TH')
+                    return sortDown(th.cellIndex, (th.childNodes[0].textContent))
+
+                })
+                sortBtns.append(incSort)
+                sortBtns.append(decSort)
+
+                keyTitle.innerText = `${key}`
+
+                keyTitle.append(sortBtns)
+                theadRow.append(keyTitle)
+            }
+
+            table.append(tableHead)
+
+        }
+        // Блок отвечающий за наполнение таблицы
+        function addRowContent(res, limit, currentPage) {
+            // если в таблице присутствует тело таблицы, то её содержимое удаляется
+            if (document.querySelector('.table-body')) {
+                const currentTableBody = document.querySelector('.table-body')
+                currentTableBody.innerHTML = "";
+            }
+            // Если тела таблицы в документе нету, то создает его
+            else {
+                const tableBody = document.createElement('tbody')
+                tableBody.classList.add('table-body')
+                table.append(tableBody)
+            }
+            currentPage-- //т.к. массив страниц начинается с нулевого элемента уменьшаем значение на 1
+
+            // переменные отвечающий за отображение элементво на странице
+            const start = limit * currentPage //рассчитывает с какого элемента начинается страница
+            const end = start + limit //рассчитывает на каком элементе заканчивается страница
+            const paginatedResponse = res.slice(start, end) //создает массив только теми данными которые находятся на стрице
+
+
+            // Отрисовка каждого элемента на странице
+            paginatedResponse.forEach(item => {
+                const tableBody = document.querySelector('.table-body')
+                const tr = document.createElement('tr')
+                // итерация по полям одного объекта
+                for (let key in item) {
+                    const td = document.createElement('td')
+                    // записывает данные по ключу в ячейку
+                    td.innerText = item[key]
+                    tr.append(td)
+                }
+                tr.classList.add('tr-content')
+                tableBody.append(tr)
+            })
+        }
+        // функция отвечающая за отрисовку блока со страницами
+        function addPagination(res) {
+            const tableListItems = res.length
+            // вычисление кол-ва страниц
+            const pageCount = Math.ceil(tableListItems / limit);
+            const paginationBlock = document.createElement('div')
+            paginationBlock.classList.add('pagination-block')
+            // создание кнопок пагинации
+            for (let i = 0; i < pageCount; i++) {
+
+                const page = paginationButton(i + 1) // индекс +1 т.к. перебор значений начинается с 0
+                paginationBlock.append(page)
+            }
+            container.append(paginationBlock)
+        }
+        // функциясоздания кнопки пагинации
+        // принимает значение которое будет использованно как номер страницы
+        function paginationButton(index) {
+            const pageBtn = document.createElement('div')
+            pageBtn.classList.add('page-btn')
+            pageBtn.innerText = (index) // помещает в кнопку её номер
+            if (currentPage === index) pageBtn.classList.add('page__btn--active') //Если текущая страница совпадает с номером, то добавляется класс active
+            // Добавляет слушатель на каждую кнопку
+            pageBtn.addEventListener('click', () => {
+                // меняет текущую страницу на страницу которая передана в кнопку
+                currentPage = pageBtn.innerText
+
+                // срабатывает функция, которая отвечает за отрисовку тела таблицы
+                addRowContent(res, limit, currentPage)
+
+                // Снимается класс active с текущей кнопки
+                let currentBtn = document.querySelector('div.page__btn--active')
+                currentBtn.classList.remove('page__btn--active')
+
+                // active добавляется на нажатую кнопку
+                pageBtn.classList.add('page__btn--active')
+            })
+            return pageBtn
+        }
+
+        // функция сортировки по возрастанию
+        function sortUp(columnNum, type) {
+            let tbody = document.querySelector('.table-body')
+            // создает массив из всех рядов
+            let rowsArr = Array.from(tbody.rows)
+            // Проверка по ключу 
+            if (type === 'fname' || type === ('lname') || type === ('city') || type === ('state')) {
+                rowsArr.sort((rowA, rowB) => {
+                    // строки сортируются от Z к A(по возрастаную в алфавите, а не номеру кодировки символа)
+                    return (rowB.cells[columnNum].innerText).localeCompare((rowA.cells[columnNum].innerText))
+                })
+            }
+            if (type === ('tel') || type === ('address') || type === ('zip')) {
+                rowsArr.sort((rowA, rowB) => {
+                    // сортировка числовых значений от 1 к 9
+                    return (rowA.cells[columnNum].innerText).localeCompare((rowB.cells[columnNum].innerText))
+                })
+            }
+
+            tbody.append(...rowsArr)
+
+        }
+        // функция сортировки по убыванию
+        function sortDown(columnNum, type) {
+            let tbody = document.querySelector('.table-body')
+            let rowsArr = Array.from(tbody.rows)
+            if (type === 'fname' || type === ('lname') || type === ('city') || type === ('state')) {
+                rowsArr.sort((rowA, rowB) => {
+
+                    // сортировка от A до Z
+                    return (rowA.cells[columnNum].innerText).localeCompare((rowB.cells[columnNum].innerText))
+                })
+            }
+            if (type === ('tel') || type === ('address') || type === ('zip')) {
+                rowsArr.sort((rowA, rowB) => {
+                    // от 9 к 1
+                    return (rowB.cells[columnNum].innerText).localeCompare((rowA.cells[columnNum].innerText))
+                })
+            }
+            tbody.append(...rowsArr)
+
+        }
+        createHeader(res)
+        addRowContent(res, limit, currentPage)
+        addPagination(res)
+
+
+    }
+    main()
+</script>
+
+</html>

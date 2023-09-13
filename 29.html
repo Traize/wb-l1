@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .template {
+            font-size: 24px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 1000px;
+            margin: 40px auto;
+        }
+
+        .creation {
+            width: fit-content;
+        }
+
+        .input {
+            height: 24px;
+            width: 400px;
+            font-size: 18px;
+        }
+
+        button {
+            height: 24px;
+            width: 100px;
+            font-size: 18px;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <form action="" class="creation">
+            <input type="text" class="title-input input" placeholder="title">
+            <input type="text" class="desc-input input" placeholder="desc">
+            <button>Создать</button>
+        </form>
+
+    </div>
+</body>
+<script>
+    const input = document.querySelector('.template-input')
+    const form = document.querySelector('.creation')
+    const container = document.querySelector('.container')
+
+    // форма для отправки введеных данных с импутов
+    form.addEventListener('submit', (e) => {
+
+        e.preventDefault() // убирает обновление страциы при отправке данных с формы
+
+        const title = e.target.querySelector('.title-input')
+        const desc = e.target.querySelector('.desc-input')
+
+        // Вывод информации с формы
+        alert(title.value)
+        alert(desc.value)
+    })
+
+
+</script>
+
+</html>

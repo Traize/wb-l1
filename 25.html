@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .container {
+            display: flex;
+            width: 1000px;
+            margin: 20px auto;
+        }
+
+        .creation {
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            gap: 13px;
+            align-items: stretch;
+        }
+
+        .input {
+            font-size: 24px;
+            height: 30px;
+        }
+
+        .submit {
+            font-size: 28px;
+            align-self: center;
+            width: 500px;
+            height: 60px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <form action="" class="creation">
+            <input type="text" placeholder="elem" class="elem input">
+            <input type="text" placeholder="styles" class="styles input">
+            <button class="submit">Создать</button>
+        </form>
+    </div>
+</body>
+<script>
+    const form = document.querySelector('.creation')
+
+    // форма для отправки введеных данных с импута
+    form.addEventListener('submit', (e) => {
+        e.preventDefault()
+        const elem = e.target.querySelector('.elem')
+        const styles = e.target.querySelector('.styles')
+
+        createBlock(elem.value, styles.value)
+    })
+
+    // функция которая получает первым аргументом элемент(div,p,table)
+    // вторым принимает строку со стилями
+    function createBlock(element, styles) {
+        const el = document.createElement(`${element}`)
+        el.style.cssText = `${styles}`
+
+        form.append(el)
+
+    }
+
+</script>
+
+</html>

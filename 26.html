@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body class="body">
+    <section class="start">
+        <div class="oi">
+            <div class="1">
+                <div class="2">
+
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+<script>
+
+    // Элемент  с которого идёт перебор массива
+    const start = document.querySelector('.start')
+
+    // рекурсивная функция
+    function DOMRecursion(start) {
+        console.log(`Тэг: ${start.tagName}, Класс: ${start.classList.value}`)
+
+        // пока у элемента есть дочерний элемент выполняется рекурсия
+        if (start.firstElementChild) {
+            // в следующий вызов функции передаем дочерний элемент
+            DOMRecursion(start.firstElementChild)
+        }
+
+    }
+
+    DOMRecursion(start)
+
+
+</script>
+
+</html>

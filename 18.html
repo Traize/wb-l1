@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-16">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+<script>
+    function maxStorageSize() {
+        // Очищает localStorage перед началом цикла
+        localStorage.clear()
+        const sybol = 'qqqqqqqq' // переменная с записываемым элементом 8 символов
+        let size = 0 // переменная где хранится размер
+        let UTF16size = 0
+        try {
+            for (let i = 0; i < 100000000; i++) {
+                localStorage.setItem(`'${i}'`, sybol)
+            }
+        } catch (error) {
+
+        }
+        // Итерация по всем объектам в localSotrage чтобы посчитать общую длинну сохраненных символов
+        for (let i = 0; i < localStorage.length; i++) {
+            let key = localStorage.key(i)
+            let item = localStorage.getItem(key)
+            // JS размер = (key.length + item.length), utf 16 результат умноженный на 2 (В байтах)
+            size += (key.length + item.length)
+            UTF16size = size * 2
+        }
+        localStorage.clear()
+        console.log(size, UTF16size)
+    }
+    // Blob показывает 1 байт у 1 символа
+
+    // Взято с хабра
+    // UTF-8 Символы с кодами меньше 128 представляются одним байтом,
+    // Символы же с кодами от 128 кодируются 2-мя байтами, с кодами от 2048 — 3-мя, от 65536 — 4-мя
+
+    console.log(new Blob(['q']).size)
+    maxStorageSize()
+
+</script>
+
+</html>

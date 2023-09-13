@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .template {
+            font-size: 24px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 1000px;
+            margin: 40px auto;
+        }
+
+        .creation {
+            width: fit-content;
+            margin-bottom: 30px;
+        }
+
+        .input {
+            height: 24px;
+            width: 400px;
+            font-size: 18px;
+        }
+
+        button {
+            height: 24px;
+            width: 100px;
+            font-size: 18px;
+
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <form action="" class="creation">
+            <input type="text" class="title-input input" placeholder="title">
+            <input type="text" class="desc-input input" placeholder="desc">
+            <button>Создать</button>
+        </form>
+        <!-- Шаблон элемента -->
+        <template id="template">
+            <h2>DOM</h2>
+            <h1 class="title"></h1>
+            <h3 class="description"></h3>
+        </template>
+    </div>
+</body>
+<script>
+    const input = document.querySelector('.template-input')
+    const form = document.querySelector('.creation')
+    const container = document.querySelector('.container')
+    // форма для отправки введеных данных с импута
+    form.addEventListener('submit', (e) => {
+        e.preventDefault()
+        const title = e.target.querySelector('.title-input')
+        const desc = e.target.querySelector('.desc-input')
+
+        addTemplate(title.value, desc.value)
+        funcTemplate(title.value, desc.value)
+    })
+    // Функция для добавления в поля template контент 
+    function addTemplate(title, desc) {
+        const tempalte = document.querySelector('#template')
+
+        // Копирование элемента со всеми его аттрибутами
+        const clone = tempalte.content.cloneNode(true)
+        const h = clone.querySelector('.title')
+        const d = clone.querySelector('.description')
+        h.innerText = title
+        d.innerText = desc
+        container.append(clone)
+    }
+    function funcTemplate(title, desc) {
+        const tempalte = document.createElement('template')
+        tempalte.innerHTML = `
+            <h2>InnerHTML</h2>
+            <h1 class="title">${title}</h1>
+            <h3 class="description">${desc}</h3>
+        `
+        const clone = tempalte.content.cloneNode(true)
+
+        container.append(clone)
+    }
+
+</script>
+
+</html>

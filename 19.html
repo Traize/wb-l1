@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://vk.com/js/api/openapi.js?169" type="text/javascript"></script>
+    <style>
+        .post {
+            padding: 12px 17px;
+            display: flex;
+            flex-direction: column;
+            background-color: aliceblue;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+
+        .container {
+            padding: 25px;
+            display: flex;
+            width: 1000px;
+            margin: 25px auto;
+            background-color: whitesmoke;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .post-img {
+            height: 100%;
+            width: 100%;
+        }
+
+        .img-block {
+            display: flex;
+            gap: 5px;
+            width: 640px;
+            flex-wrap: wrap;
+            margin: 0 auto;
+            justify-content: center;
+            padding-bottom: 5px;
+        }
+
+        .text {
+            font-size: 18px;
+            width: 600px;
+            padding: 0 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+    </div>
+    <script type="text/javascript">
+        VK.init({
+            apiId: 51746970
+        });
+    </script>
+</body>
+<script>
+    const VK_ID = 51746970;
+    const VK_GROUP_ID = 'another_films';
+    const count = 5
+    let offset = 0
+    const limit = 20
+    let isLoading = false
+    const maxStorageSize = 10485748
+
+    const container = document.querySelector('.container')
+    // При загрузке проверяет localStorage 
+    window.addEventListener('onload', checkStorage())
+
+    // Расчёт размера localStorage 
+    function currentStorageSize() {
+        let size = 0
+        for (let i = 0; i < localStorage.length; i++) {
+            let key = localStorage.key(i)
+            let item = localStorage.getItem(key)
+            size += (key.length + item.length) * 2
+        }
+        return console.log(`Текущий размер ${size} Максимальный размер ${maxStorageSize}`)
+    }
+
+    // Запрос к api для подгрузки постов
+    function getPosts() {
+        // При загрузке меняем loading на true
+        isLoading = true
+
+        //Open API запрос
+        VK.Api.call('wall.get', {
+            owner_id: -35349905,
+            domain: 'another_films',
+            count: count, //Колиичество загружаемых постов
+            offset: offset, //Счетчик который определяет с какого поста начинать подргузку данных
+            v: 5.131,
+        }, (data) => {
+            offset += count
+            // После ответа loading = false
+            isLoading = false
+
+            //Полученные данные передаются в функцию, которая записывает их в storage
+            setItemInStorage(data.response.items)
+            // Для каждого поста создается его блок
+            data.response.items.forEach(item => addPosts(item))
+
+
+            if (localStorage.getItem('posts')) {
+                console.log(JSON.parse(localStorage.getItem('posts')).length)
+                if (JSON.parse(localStorage.getItem('posts')).length >= limit - 1) {
+                    let currentData = JSON.parse(localStorage.getItem('posts'))
+                    const offLimit = currentData.length - limit;
+                    currentData.splice(0, offLimit)
+                    localStorage.setItem('posts', JSON.stringify(currentData))
+                }
+            }
+        })
+    }
+
+    //Блок с созданием поста
+    function addPosts(item) {
+        const post = document.createElement('div')
+        post.classList.add('post')
+
+        const imageBlock = document.createElement('div')
+        imageBlock.classList.add('img-block')
+        post.append(imageBlock)
+        if (item.attachments) {
+            item.attachments.forEach(image => {
+                const img = document.createElement('img')
+
+                img.src = image.photo.sizes[1].url
+                img.width = image.photo.sizes[1].width
+                img.height = image.photo.sizes[1].height
+                imageBlock.append(img)
+            })
+        }
+
+        const itemText = document.createElement('span')
+        itemText.classList.add('text')
+        itemText.innerText = item.text
+        post.append(itemText)
+        container.append(post)
+    }
+
+    // Функции помещающая посты в storage
+    function setItemInStorage(items) {
+        // Проверка на наличие ключа в storage
+        if (localStorage.getItem('posts')) {
+            // помещает данные из storage в переменную
+            const storagePosts = JSON.parse(localStorage.getItem('posts'))
+            // перезаписывает storage с старыми постами + с новыми 
+            localStorage.setItem('posts', JSON.stringify([...storagePosts, ...items]))
+            // перезаписывает счетчик
+            localStorage.setItem('offset', JSON.stringify(offset))
+            currentStorageSize()
+
+        }
+        // Если данных по ключу не было, то просто их записывает в storage
+        else {
+            localStorage.setItem('posts', JSON.stringify(items))
+            localStorage.setItem('offset', JSON.stringify(offset))
+            currentStorageSize()
+        }
+
+    }
+    // Функция проверки storage при загрузке страницы
+    function checkStorage() {
+
+        if (localStorage.getItem('posts')) {
+            // Если есть посты помещает их в переменную и отрисовывает их
+            const data = JSON.parse(localStorage.getItem('posts'))
+            data.forEach(item => addPosts(item))
+            // Перезаписывает счётчик
+            offset = +JSON.parse(localStorage.getItem('offset'))
+
+        }
+        // если постов нет, то посылает запрос
+        else getPosts()
+    }
+
+    // слушатель на скролл
+    window.addEventListener('scroll', () => {
+        const documentRect = document.documentElement.getBoundingClientRect();
+        // Если скролл находится внизу страницы и loadin =false, то подгружает посты
+        if (documentRect.bottom < document.documentElement.clientHeight + 50 && !isLoading) {
+            getPosts()
+        }
+    })
+
+
+</script>
+
+
+</html>

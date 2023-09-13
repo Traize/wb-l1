@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .container {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            width: 1000px;
+            margin: 20px auto;
+            align-items: center;
+            background-color: whitesmoke;
+            gap: 10px;
+        }
+
+        .animated-block1 {
+            position: relative;
+            height: 40px;
+            border: 1px solid;
+            width: 800px;
+            border-radius: 8px;
+            background-color: white;
+        }
+
+        .square {
+            position: absolute;
+            height: 40px;
+            width: 40px;
+            background-color: darkslategray;
+            border-radius: 8px;
+        }
+
+        .btn {
+            border: 0.5px solid;
+            width: 100px;
+            height: 30px;
+            background-color: white;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn:active {
+            background-color: grey;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="animated-block1">
+            <div class="square1 square"></div>
+        </div>
+        <button class="block1 btn">1ый Блок</button>
+        <div class="animated-block1">
+            <div class="square2 square"></div>
+        </div>
+        <button class="block2 btn">2ой Блок</button>
+    </div>
+</body>
+<script>
+    const btn1 = document.querySelector('.block1')
+    const btn2 = document.querySelector('.block2')
+
+    // внешний счетчик позиции для рекурсии
+    let position = 0
+
+    // Способ анимации через рекурсию
+    btn1.addEventListener('click', timeout)
+    function recursionAnimation() {
+        position += 2
+        if (position > 760) return //Условие для выхода из рекурсии: ширина блока - ширина анимированого объекта
+        document.querySelector('.square1').style.left = `${position}px`
+        // Функция добавляющая интервал на самовызов, чтобы был эффект анимации
+        // иначе функция отрабатывает мгновенно
+        timeout()
+
+    }
+    function timeout() {
+        setTimeout(recursionAnimation, 50)
+    }
+
+
+    //Анимация с помощью встроенной функции animate
+
+    btn2.onclick = function () {
+        // Блок который будет анимироваться
+        document.querySelector('.square2').animate(
+            square2Transition, //Параметры анимации 
+            square2Timings // опции выполнения анимации
+
+        )
+    };
+    // переменная с параметрами
+    const square2Transition = [
+        // Анимация начианется со стартой позиции блока
+        { transform: 'translateX(0px)' },
+        // Заканчивается на ширине блока в котором находится
+        { transform: 'translateX(760px)' }]
+
+
+    // переменная с опциями
+    const square2Timings = {
+        // время выполнения анимации
+        duration: 2000,
+
+
+        // Параметр отвечающий за направление анимации
+        // в данном случае он чередует нормальное поведение с реверсивным
+        direction: 'alternate',
+
+        // количество интераций 
+        iterations: Infinity,
+
+    }
+</script>
+
+</html>

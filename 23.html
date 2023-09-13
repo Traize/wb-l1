@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        .password {
+            width: 700px;
+            height: 24px;
+            font-size: 24px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            margin: 40px auto;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Введите пароль</h1>
+        <input type="text" class="password">
+        <span class="rec"></span>
+        <span class="diff"></span>
+    </div>
+</body>
+<script>
+    const input = document.querySelector('.password')
+    const rec = document.querySelector('.rec')
+    const diff = document.querySelector('.diff')
+
+    // regexp выражения для проверки пароля
+    const regNum = (/\d/)
+    const regSybol = (/(?=.*[!@#$%^&*])/)
+    const regUppercase = (/(?=.*[A-Z])/)
+    const regLowercase = (/(?=.*[a-z])/)
+
+    // слушатель для проверки пароля
+    input.addEventListener('input', (e) => {
+        let value = e.target.value
+
+        //Проверки на наличие определенных символов в строке
+        if (value.length < 6) {
+            // выводит рекомендацию по улучшению пароля
+            rec.innerText = `Пароль должен быть длинее 6 символов`
+        } else if (!value.match(regNum)) {
+            rec.innerText = `Пароль должен содержать хотя бы одну цифру`
+        }
+        else if (!value.match(regSybol)) {
+            rec.innerText = `Пароль должен содержать хотя бы однин символ`
+        }
+        else if (!value.match(regUppercase)) {
+            rec.innerText = `Пароль должен содержать хотя бы одну букву в верхнем регистре`
+        }
+        else if (!value.match(regLowercase)) {
+            rec.innerText = `Пароль должен содержать хотя бы одну букву в нижнем регистре`
+        } else rec.innerText = ``
+
+    })
+
+    // Отдельный слушатель для оценки сложности
+    input.addEventListener('input', (e) => {
+        let count = 0
+        let value = e.target.value
+        // массив условий
+        let match = [(value.length > 10), (value.match(regSybol)), (value.match(regUppercase)), (value.match(regLowercase)), (value.match(regNum))]
+
+        match.forEach((item) => {
+            // если условие выполнено увеличивает count
+            if (item) {
+                count++
+            }
+        })
+        // Проверка на минимум 6 символов в пароле, меньше 6 вообще не проверяется
+        if (value.length > 6) {
+            // если по итогу проверок count > числа выводит сообщение о сложности пароля
+            if (count === 2) {
+                diff.innerText = `Очень слабый пароль`
+            }
+            else if (count === 3) {
+                diff.innerText = `Cлабый пароль`
+            }
+            else if (count === 4) {
+                diff.innerText = `Средний пароль`
+            }
+            else if (count === 5) {
+                diff.innerText = `Надёжный пароль`
+            }
+            // Если пусто или начальная проверка на минимум из 6 символов не пройдена то удаляет текст
+        } else { diff.innerText = `` }
+    }
+    )
+
+</script>
+
+</html>
