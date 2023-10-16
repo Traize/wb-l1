@@ -8,7 +8,7 @@ const data = [
 
 json = JSON.stringify(data)
 
-
+// Конструтор для создания элементов  в списке
 class Node {
     constructor(data) {
         this.data = data;
@@ -16,36 +16,35 @@ class Node {
     }
 }
 
-function JSONtoLinkedList(json) {
+function toList(json) {
 
     const parsedJSON = JSON.parse(json);
 
-
+    // Проверка является ли обект массивом и не пустой ли он
     if (!Array.isArray(parsedJSON) || parsedJSON.length === 0) {
         return;
     }
 
-
+    //Начальное положение head
     const head = new Node(parsedJSON[0]);
-
-    let currentNode = head;
-
+    // Присваивание положение переменной чтобы потом перемещать положение head
+    let сurrentNode = head;
 
     for (let i = 1; i < parsedJSON.length; i++) {
+        // Переменная которая создает ссылку на следующий элемент в списке
+        const newNode = new Node(parsedJSON[i])
+        // Записывает в next ссылку на след элемент
+        сurrentNode.next = newNode
 
-        const newNode = new Node(parsedJSON[i]);
-
-        currentNode.next = newNode;
-
-        currentNode = newNode;
+        // Текущий элемент меняется на следующий
+        сurrentNode = newNode
     }
-
-
-    return head;
+    return head
 }
 
-let list = JSONtoLinkedList(json)
+let list = toList(json)
+
 while (list) {
-    console.log(list.data)
+    console.log(list)
     list = list.next
 }
